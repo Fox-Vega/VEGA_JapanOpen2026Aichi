@@ -5,10 +5,10 @@
 
 
 void LINE::get_message(byte* message) {
-        //メッセージ処理
+    //メッセージ処理
 
-        //初期化
-        //グループ分け
+    //初期化
+    //グループ分け
 
     if (pack_NUM == 0) { //ラインない
         line_x = 999;
