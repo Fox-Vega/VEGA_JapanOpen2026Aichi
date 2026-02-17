@@ -17,14 +17,16 @@ class MyMOTOR {
 
     private:
         //調整
-        const float kp = 2.6; //比例　感度を上げる
-        const float dkp = 1.0; //ゴールを向く（dzone外の比例）
-        const float dzkp = 1.0; //ゴールを向く（dzoneの比例（dzoneに微分無し））
-        const float kd = 2.0; //微分　速度を抑える
-        const int dzone = 10; //dzone 範囲
+        const float kp = 2.5; //比例　感度を上げる
+        const float dkp = 2.0; //ゴールを向く（dzone外の比例）
+        const float dzkp = 1.5; //ゴールを向く（dzoneの比例（dzoneに微分無し））
+        const float kd = 0.1; //微分　速度を抑える
+        const int dzone = 20; //dzone 範囲
         const int pwmlimit = 200; //移動の出力リミット
-        const int difixlimit = 100; //姿勢制御の出力リミット
-        const int sharelimit = 40; //共有出力
+        const int difixlimit = 10; //姿勢制御の単体出力リミット
+        const int sharelimit = 150; //共有出力　姿勢制御単体出力リミットを超えた時に移動出力を削れる量
+
+        int max_power{};
 
 
         int azimuth;
