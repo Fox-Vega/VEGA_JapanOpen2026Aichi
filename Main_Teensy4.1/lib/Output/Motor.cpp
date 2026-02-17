@@ -38,21 +38,24 @@ void MyMOTOR::run(int movement_azimuth, int power_, int dir_azimuth) {
         if (fabs(motor_power_[i]) > peak) peak = fabs(motor_power_[i]); //最高値を記録
     }
 
-    int trim{};
-    if (difixlimit - sharelimit < abs(difix)) {
-        trim = abs(difix) - (difixlimit - sharelimit);
-    }
+    // int trim{};
+    int trim = (abs(difix) - difixlimit);
+    if (trim > sharelimit) trim = sharelimit;
+    int mp = 210 - trim;
+
+    max_power = power_;
+    if (power_ > mp) max_power = mp;
 
     for (int i = 0; i < 4; i++) {
         // peak が 0 の場合は倍率 0 にして除算を避ける
         scale = (peak == 0.0f) ? 0.0f : (fabs(motor_power_[i]) / peak); //倍率を計算
 
         //出力計算（float）
-        if (motor_power_[i] > 0) motor_power[i] = ((power_ - trim) * scale) + difix;
-        else if (motor_power_[i] < 0) motor_power[i] = ((-power_ + trim) * scale) + difix;
+        if (motor_power_[i] > 0) motor_power[i] = ((max_power - trim) * scale) + difix;
+        else if (motor_power_[i] < 0) motor_power[i] = ((-max_power + trim) * scale) + difix;
         else motor_power[i] = difix;
 
-        motor_power[i] = constrain(motor_power[i], -255, 255);
+        motor_power[i] = constrain(motor_power[i], -210, 210);
 
         //信号送信
         if (motor_lock == 0) {
@@ -81,7 +84,7 @@ int MyMOTOR::difix(int target_azimuth) {
     float dt = (millis() - lastupdate) / 1000.0; //秒
 
     float error = 0;
-    if (motor_stabilization == 2 && cam.get_x(1) != 999) {
+    if (motor_stabilization == 2 && cam.get_ax(1) != 999) {
         //角度差
         error = cam.get_x(1);
         if (error > 180) {
@@ -112,8 +115,6 @@ int MyMOTOR::difix(int target_azimuth) {
     if (motor_stabilization == 2 && cam.get_x(1) != 999 && abs(cam.get_x(1)) > dzone) pwm = dkp * error - kd * derivative;
     else if (motor_stabilization == 2 && cam.get_x(1) != 999) pwm = dzkp * error;
     else pwm = kp * error - kd * derivative;
-
-    pwm = constrain (pwm, -difixlimit, difixlimit);
 
     lastupdate = millis();
     prev_azimuth = gam.get_azimuth();
