@@ -33,7 +33,7 @@ void BALL::read() {
             if (Reader[i][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
             if (Reader[i][3]) GPIO_SET(selectPIN[3]); else GPIO_CLR(selectPIN[3]);
 
-            //黒塗り（一行だけやけど）
+            delayMicroseconds(8);
 
             if (!GPIO_READ(outputPIN)) {
                 ballvalues[link[i]]++;
