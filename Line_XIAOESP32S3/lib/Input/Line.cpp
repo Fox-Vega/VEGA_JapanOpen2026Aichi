@@ -32,29 +32,23 @@ void LINE::read() {
     //読み取り
     for (int k = 0; k < 3; k++) { //測定回数
         for (int i = 0; i < 8; i++) { //取得ピン切り替え
-            if (Reader[i][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
-            if (Reader[i][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
-            if (Reader[i][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
+            if (Reader[link[i]][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
+            if (Reader[link[i]][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
+            if (Reader[link[i]][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
 
             delayMicroseconds(3);
 
             for (int j = 0; j < 3; j++) { //値読み取り
-                line_values[link[(j * 8) + i]] = analogRead(outputPIN[j]); //値の保存
-                if (line_values[link[(j * 8) + i]] > detection_border) { //ステータスに変換
-                    line_stat_[link[(j * 8) + i]] += 1; //仮ステータスに加算
-                    if (line_stat_[link[(j * 8) + i]] >= 2) { //最終ステータス
-                        line_stat[link[(j * 8) + i]] = 1;
+                line_values[(j * 8) + i] = analogRead(outputPIN[j]); //値の保存
+                if (line_values[(j * 8) + i] > detection_border) { //ステータスに変換
+                    line_stat_[(j * 8) + i] += 1; //仮ステータスに加算
+                    if (line_stat_[(j * 8) + i] >= 2) { //最終ステータス
+                        line_stat[(j * 8) + i] = 1;
                     }
                 }
             }
         }
     }
-
-    // for (int i = 0; i < 24; i++) {
-    //     Serial.print(line_stat[i]);
-    //     Serial.print(" ");
-    // }
-    // Serial.println();
 }
 
 bool LINE::get_stat(byte lineNUM) {
