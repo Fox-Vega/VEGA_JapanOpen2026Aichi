@@ -27,10 +27,12 @@ void BALL::read() {
     unsigned long ball_start = micros();
     while((micros() - ball_start) < 833) {
         for (int i = 0; i < 16; i++) {
-            if (Reader[i][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
-            if (Reader[i][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
-            if (Reader[i][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
-            if (Reader[i][3]) GPIO_SET(selectPIN[3]); else GPIO_CLR(selectPIN[3]);
+            if (Reader[link[i]][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
+            if (Reader[link[i]][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
+            if (Reader[link[i]][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
+            if (Reader[link[i]][3]) GPIO_SET(selectPIN[3]); else GPIO_CLR(selectPIN[3]);
+
+            delayMicroseconds(10);
 
             if (!GPIO_READ(outputPIN)) {
                 ballvalues[i]++;
