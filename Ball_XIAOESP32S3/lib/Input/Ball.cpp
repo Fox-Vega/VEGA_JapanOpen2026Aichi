@@ -15,7 +15,6 @@ void BALL::setup() {
     pinMode(outputPIN, INPUT);
 
     ballNUMoffset = 16 - ((samples - 1) / 2);
-    hsamples = sizeof(ball_hmag) / sizeof(ball_hmag[0]);
 }
 
 void BALL::read() {
@@ -26,20 +25,26 @@ void BALL::read() {
 
     //読み取り
     unsigned long ball_start = micros();
-    while((micros() - ball_start) < ????) {
+    while((micros() - ball_start) < 2499) {
         for (int i = 0; i < 16; i++) {
             if (Reader[i][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
             if (Reader[i][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
             if (Reader[i][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
             if (Reader[i][3]) GPIO_SET(selectPIN[3]); else GPIO_CLR(selectPIN[3]);
 
-            delayMicroseconds(8);
+            delayMicroseconds(5);
 
             if (!GPIO_READ(outputPIN)) {
-                ballvalues[link[i]]++;
+                ballvalues[i]++;
             }
         }
     }
+
+    // for (int i = 0; i < 16; i++) {
+    //     Serial.print(ballvalues[i]);
+    //     Serial.print(" ");
+    // }
+    // Serial.println();
 
     //最大値
     max_ballNUM = 99;
@@ -69,17 +74,23 @@ void BALL::read() {
         ball_y_ = total_y / samples;
     }
 
-    //履歴更新
-    for (int i = 0; i < (hsamples - 1); i++) { //ずらす
-        ball_hmag[i + 1] = ball_hmag[i];
+    //履歴データの平均
+    total_x = 0;
+    total_y = 0;
+    for (int i = 0; i < (BALL_HISTORY_SIZE - 1); i++) {
+        ball_hx[i + 1] = ball_hx[i];
+        ball_hy[i + 1] = ball_hy[i];
     }
-    if (max_ballNUM != 99) ball_hmag[0] = myvector.get_magnitude(ball_x_, ball_y_); //追加
-    else ball_hmag[0] = 0;
+    ball_hx[0] = ball_x_;
+    ball_hy[0] = ball_y_;
+    for (int i = 0; i < BALL_HISTORY_SIZE; i++) {
+        total_x += ball_hx[i];
+        total_y += ball_hy[i];
+    }
+    ball_x = total_x / BALL_HISTORY_SIZE;
+    ball_y = total_y / BALL_HISTORY_SIZE;
 
-    //和を求めて平均取る
-    total_mag = 0; //リセット
-    for (int i = 0; i < hsamples; i++) total_mag += ball_hmag[i];
-    myvector.get_cord(myvector.get_azimuth(ball_x_, ball_y_), total_mag / hsamples);
+    myvector.get_cord(myvector.get_azimuth(ball_x_, ball_y_), myvector.get_magnitude(ball_x, ball_y));
 
     ball_x = myvector.get_x();
     ball_y = myvector.get_y();
