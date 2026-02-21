@@ -14,26 +14,20 @@ class BALL {
 
     private:
         int samples = 5; //移動平均計算に使用する個数
-        int ball_x{};//最終座標（処理済み）
-        int ball_y{};//最終座標（処理済み）
+        int ball_x{};//仮座標
+        int ball_y{};//仮座標
         int ball_x_{};//最終座標（処理済み）
         int ball_y_{};//最終座標（処理済み）
-        int ball_hx[BALL_HISTORY_SIZE]{};
-        int ball_hy[BALL_HISTORY_SIZE]{};
-        int total_x{};//X座標合計値
-        int total_y{};//Y座標合計値
-        int total_mag{};//強度合計値
+        int ball_hx[BALL_HISTORY_SIZE]{};//履歴
+        int ball_hy[BALL_HISTORY_SIZE]{};//履歴
         int ballvalues[16]{};//センサー値を保存
-        int ballNUMstart{};//グループ分け開始センサー番号
-        int ballNUMoffset{}; //ずらす量（自動計算）
-        int max_ballNUM{};//最大強度を持つセンサー番号を保存
-        int max_ballvalue{};//最大強度を保存
-        int NUMball = 16; //センサーの数
+        int ballNUMoffset{}; //ずらす量（自動計算＆保存）
 
-        int ball_hmag[20]{};
+        int NUMball = 16; //センサーの数
 
         const uint8_t selectPIN[4] = {D9, D8, D4, D5}; //選択ピン
         const uint8_t outputPIN = D10;
+
         const float balldirs[16] = {0, 22.5, 45, 67.5, 90, 112.5, 135, 157.5, 180, 202.5, 225, 247.5, 270, 292.5, 315, 337.5}; //各センサー角度
         const uint8_t Reader[16][4] = {
             {0, 0, 0, 0},
