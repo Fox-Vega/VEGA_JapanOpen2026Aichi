@@ -77,31 +77,35 @@ void loop() {
     }
 }
 
-void serialEvent5() { //ball
-    // start x1 x2 y1 y2 key end
+// ====================================== UART ======================================
 
-    uint8_t message5_read[7]{};
+void serialEvent4() { //ball
+    // start ID x1 x2 y1 y2 key end
+
+    uint8_t message4_read[8]{};
 
     while(1) { //無条件
-        if (Serial5.available() >= 7) {
-            message5_read[0] = Serial5.read();
-            if (message5_read[0] == 195) break; //スタートあれば次に進む
+        if (Serial4.available() >= 8) {
+            message4_read[0] = Serial4.read();
+            if (message4_read[0] == 195) break; //スタートあれば次に進む
         } else {
             return; //データ個数が不十分なら読み取り中止
         }
     }
 
-    for (int i = 1; i < 7; i++) message5_read[i] = Serial5.read(); //残りの６個を読む
+    for (int i = 1; i < 8; i++) message4_read[i] = Serial4.read(); //残りを読む
 
-    if(codec.decode(message5_read, 1, 4, 5) != 0) return; //エラー出たら中止
+    if(codec.decode(message4_read, 2, 5, 6) != 0) return; //エラー出たら中止
 
-    if (message5_read[6] == 231) ball.get_message(message5_read); //データ処理
+    if (message4_read[7] == 231) ball.get_message(message4_read); //データ処理
     else return; //エンドなければ処理しない
 }
 
 void serialEvent6() { //cam1
-    // start ID datax tarx width height end
-    // ID 1=ゴールの色
+    // start ID x tarx width height end
+    // ID ０＝なし
+    // ID １＝青
+    // ID ２＝黄色
 
     uint8_t message6_read[7]{};
 
@@ -136,13 +140,15 @@ void serialEvent6() { //cam1
 }
 
 void serialEvent2() { //cam2
-    // start ID datax tarx width height end
-    // ID 1=ゴールの色
+    // start ID x width height end
+    // ID ０＝なし
+    // ID １＝青
+    // ID ２＝黄色
 
-    uint8_t message2_read[7]{};
+    uint8_t message2_read[6]{};
 
     while(1) { //無条件
-        if (Serial2.available() >= 7) { //個数があれば読み取る
+        if (Serial2.available() >= 6) { //個数があれば読み取る
             message2_read[0] = Serial2.read();
             if (message2_read[0] == 195) break; //スタートあれば次に進む
         } else {
@@ -150,20 +156,20 @@ void serialEvent2() { //cam2
         }
     }
 
-    for (int i = 1; i < 7; i++) message2_read[i] = Serial2.read(); //残りを読む
+    for (int i = 1; i < 6; i++) message2_read[i] = Serial2.read(); //残りを読む
 
-    if (message2_read[6] == 231) cam.get_message(message2_read, 1); //データ処理
+    if (message2_read[5] == 231) cam.get_message(message2_read, 1); //データ処理
     else return; //エンドなければ処理しない
 }
 
 void serialEvent3() { //line
-    // start ID data1 data2 data3 end
-    // ID 1=RAWdata
+    // start ID data1 data2 data3 key end
+    // ID １＝圧縮データ
 
-    uint8_t message3_read[6]{};
+    uint8_t message3_read[7]{};
 
     while(1) { //無条件
-        if (Serial3.available() >= 6) { //個数があれば読み取る
+        if (Serial3.available() >= 7) { //個数があれば読み取る
             message3_read[0] = Serial3.read();
             if (message3_read[0] == 195) break; //スタートあれば次に進む
         } else {
@@ -171,8 +177,10 @@ void serialEvent3() { //line
         }
     }
 
-    for (int i = 1; i < 6; i++) message3_read[i] = Serial3.read(); //残りを読む
+    for (int i = 1; i < 7; i++) message3_read[i] = Serial3.read(); //残りを読む
 
-    if (message3_read[5] == 231) line.get_message(message3_read); //データ処理
+    if(codec.decode(message3_read, 2, 4, 5) != 0) return; //エラー出たら中止
+
+    if (message3_read[6] == 231) line.get_message(message3_read); //データ処理
     else return; //エンドなければ処理しない
 }
