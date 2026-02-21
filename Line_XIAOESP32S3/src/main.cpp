@@ -16,10 +16,10 @@ void loop() {
 }
 
 void serialEvent1() { //teensy
-    // ID1 = border
-
-    uint8_t message1_read[6] = {0};
     // start ID data1 data2 key end
+    // ID １＝閾値
+
+    uint8_t message1_read[6]{};
 
     while(1) { //無条件
         if (Serial1.available() >= 6) { //個数があれば読み取る
