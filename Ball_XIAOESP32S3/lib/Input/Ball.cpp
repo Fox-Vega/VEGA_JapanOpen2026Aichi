@@ -25,14 +25,14 @@ void BALL::read() {
 
     //読み取り
     unsigned long ball_start = micros();
-    while((micros() - ball_start) < 833) {
+    while((micros() - ball_start) < 2499) {
         for (int i = 0; i < 16; i++) {
             if (Reader[link[i]][0]) GPIO_SET(selectPIN[0]); else GPIO_CLR(selectPIN[0]);
             if (Reader[link[i]][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
             if (Reader[link[i]][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
             if (Reader[link[i]][3]) GPIO_SET(selectPIN[3]); else GPIO_CLR(selectPIN[3]);
 
-            delayMicroseconds(10);
+            delayMicroseconds(5);
 
             if (!GPIO_READ(outputPIN)) {
                 ballvalues[i]++;
@@ -47,8 +47,8 @@ void BALL::read() {
     // Serial.println();
 
     //最大値
-    max_ballNUM = 99;
-    max_ballvalue = 0;
+    int max_ballNUM = 99;
+    int max_ballvalue = 0;
     for (int i = 0; i < 16; i++) {
         if (ballvalues[i] > max_ballvalue) {
             max_ballvalue = ballvalues[i];
@@ -61,9 +61,9 @@ void BALL::read() {
         ball_y_ = 0;
     } else { //ボールある
         // 座標計算（ベクトルの移動平均）
-        total_x = 0;
-        total_y = 0;
-        ballNUMstart = (max_ballNUM + ballNUMoffset) % 16;
+        int total_x = 0;
+        int total_y = 0;
+        int ballNUMstart = (max_ballNUM + ballNUMoffset) % 16;
         for (int i = 0; i < samples; i++) {
             int ballNUM = (ballNUMstart + i) % 16;
             myvector.get_cord(balldirs[ballNUM], ballvalues[ballNUM]);
@@ -75,8 +75,8 @@ void BALL::read() {
     }
 
     //履歴データの平均
-    total_x = 0;
-    total_y = 0;
+    int total_x = 0;
+    int total_y = 0;
     for (int i = 0; i < (BALL_HISTORY_SIZE - 1); i++) {
         ball_hx[i + 1] = ball_hx[i];
         ball_hy[i + 1] = ball_hy[i];
