@@ -36,6 +36,8 @@ void LINE::read() {
             if (Reader[i][1]) GPIO_SET(selectPIN[1]); else GPIO_CLR(selectPIN[1]);
             if (Reader[i][2]) GPIO_SET(selectPIN[2]); else GPIO_CLR(selectPIN[2]);
 
+            delayMicroseconds(3);
+
             for (int j = 0; j < 3; j++) { //値読み取り
                 line_values[link[(j * 8) + i]] = analogRead(outputPIN[j]); //値の保存
                 if (line_values[link[(j * 8) + i]] > detection_border) { //ステータスに変換
@@ -47,6 +49,12 @@ void LINE::read() {
             }
         }
     }
+
+    // for (int i = 0; i < 24; i++) {
+    //     Serial.print(line_stat[i]);
+    //     Serial.print(" ");
+    // }
+    // Serial.println();
 }
 
 bool LINE::get_stat(byte lineNUM) {
