@@ -24,5 +24,5 @@ void Communicate::teensy_write(int ID) {
     }
 
     codec.encode(message1_write, 2, 4, 5);
-    Serial1.write(message1_write, 6);
+    Serial1.write(message1_write, 7); //しょうもないミス
 }
