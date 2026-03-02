@@ -3,4 +3,4 @@
 
 
 Main_Teensy4.1 > src  
-Main_Teensy4.1 > lib > process　はアタッカー(Mk.3)機体のプログラムです。
+Main_Teensy4.1 > lib > process　はアタッカー（Mk.3）機体のプログラムです。
