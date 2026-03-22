@@ -1,18 +1,35 @@
 //変更禁止
 #include "Cam.h"
-
+#include "AIP.h"
+#include "Input.h"
 
 void Cam::get_message(byte* message, bool cam) {
+    // start ID datax tarx width height end
+
     if (message[1] == 1) {
         x[0] = message[2] - 59;
-        ax[0] = message[3] - 59;
-        width[0] = message[4];
-        height[0] = message[5];
+        if (cam == 0 && !istarset && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 0; istarset = 1;}
+        if (cam == 0) {
+            if (message[3] != 255) ax[0] = message[3] - 59;
+            else ax[0] = 999;
+            width[0] = message[4];
+            height[0] = message[5];
+        } else {
+            width[0] = message[3];
+            height[0] = message[4];
+        }
     } else if (message[1] == 2) {
         x[1] = message[2] - 59;
-        ax[1] = message[3] - 59;
-        width[1] = message[4];
-        height[1] = message[5];
+        if (cam == 0 && !istarset && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 1; istarset = 1;}
+        if (cam == 0) {
+            if (message[3] != 255) ax[1] = message[3] - 59;
+            else ax[1] = 999;
+            width[1] = message[4];
+            height[1] = message[5];
+        } else {
+            width[1] = message[3];
+            height[1] = message[4];
+        }
     } else {
         if (cam == 0) {
             x[target] = 999;
@@ -75,4 +92,5 @@ int Cam::get_height(bool side) {
 
 void Cam::set(bool tar) {
     target = tar;
+    istarset = 1;
 }
