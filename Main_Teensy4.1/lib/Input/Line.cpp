@@ -15,14 +15,13 @@ void LINE::get_message(byte* message) {
         line_y = 999;
     } else { //ラインある
         //座標計算（移動平均）
-        //俯瞰座標に変換
         //ゼロ除算防止
         //初回検知か確認（バグ防止）
         //反転判定（半分を超えても逃げる方向を維持するため）
         //逃げる方向更新（反転ステータスに応じて更新　解説みてね）
     
         
-        //ラインセンサー処理だけ非公開なので簡単解説：
+        //ラインセンサー処理だけ未公開なので簡単解説：
         //ライン処理は完全にベクトルを使用（AIPフォルダ内のMyVector.cppを参照）
         //方向反転に a = -a　を使えるから楽
         //ゼロ除算防止とか言ってるけど(0, 0)になったら前回の値を使うだけ　これで問題ないと勝手に思ってる
@@ -40,25 +39,27 @@ void LINE::get_message(byte* message) {
 }
 
 int LINE::get_azimuth() {
-    if (line_x == 0 && line_y == 0) {
-        return 0;
+    int azimuth = 0;
+    if (line_type != 0 || line_x != 0 || line_y != 0) {
+        azimuth = round(myvector.get_azimuth(line_x, line_y));
     }
-    return round(myvector.get_azimuth(line_x, line_y));
+    return azimuth;
 }
 
 int LINE::get_magnitude() {
     int magnitude = 999;
-    if (line_type != 0) {
-        magnitude = myvector.get_magnitude(line_x, line_y);
+    if (line_type != 0 || line_x != 0 || line_y != 0) {
+        magnitude = round(myvector.get_magnitude(line_x, line_y));
     }
     return magnitude;
 }
 
 int LINE::get_eazimuth() {
-    if (escape_x == 0 && escape_y == 0) {
-        return 0;
+    int eazimuth = 0;
+    if (line_type != 0 || line_x != 0 || line_y != 0) {
+        eazimuth = round(myvector.get_azimuth(escape_x, escape_y));
     }
-    return round(myvector.get_azimuth(escape_x, escape_y));
+    return eazimuth;
 }
 
 int LINE::get_x() {
@@ -73,8 +74,8 @@ bool LINE::get_stat(byte lineNUM) {
     return line_stat[lineNUM];
 }
 
-int LINE::get_type() {
-    return line_type;
+int LINE::get_packNUM() {
+    return pack_NUM;
 }
 
 int LINE::get_pack(byte packNUM) {
@@ -85,6 +86,6 @@ bool LINE::get_trip() {
     return trip;
 }
 
-bool LINE::get_in() {
-    return in;
+unsigned long LINE::get_et() {
+    return (millis() - last_detection);
 }
