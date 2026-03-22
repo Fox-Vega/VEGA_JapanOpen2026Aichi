@@ -1,6 +1,7 @@
 //変更禁止
 #include "GAM.h"
 #include "AIP.h"
+#include "Input.h"
 #include "Output.h"
 #include <Wire.h>
 #include <Adafruit_Sensor.h>
@@ -63,6 +64,7 @@ void GAM::dir_reset() {
     sensors_event_t euler_event;
     bno.getEvent(&euler_event, Adafruit_BNO055::VECTOR_EULER);
     yawtweak = 360 - euler_event.orientation.x;
+    cam.istarset = 0;
 }
 
 float GAM::bimuth_conv(float azimuth) {
@@ -74,7 +76,6 @@ float GAM::bimuth_conv(float azimuth) {
 
 float GAM::bimuth_rev(float bimuth) {
     float result = bimuth - get_azimuth();
-    // 0-360 にラップ
     while (result < 0) result += 360.0f;
     while (result >= 360.0f) result -= 360.0f;
     return result;
