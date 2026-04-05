@@ -20,9 +20,9 @@ void MyMOTOR::run(int movement_azimuth_, int movement_power_, int difix_azimuth_
     REC_power = movement_power_;
 
     //姿勢制御の出力を取得
-    int difix = 0;
+    difix_power = 0;
     if (difix_MODE) {
-        difix = mymotor.difix(difix_azimuth_);
+        difix_power = mymotor.difix(difix_azimuth_);
     }
 
     //仮出力の計算＆最高値の記録
@@ -37,7 +37,7 @@ void MyMOTOR::run(int movement_azimuth_, int movement_power_, int difix_azimuth_
 
     //移動に使用できる最大出力の計算
     movement_power_ = constrain(movement_power_, -movement_LIMIT, movement_LIMIT);
-    int max_power = pwm_LIMIT - abs(difix) + difix_LIMIT;
+    int max_power = pwm_LIMIT - abs(difix_power) + difix_LIMIT;
     if (movement_power_ < max_power) max_power = movement_power_;
 
     for (int i = 0; i < 4; i++) {
@@ -45,10 +45,10 @@ void MyMOTOR::run(int movement_azimuth_, int movement_power_, int difix_azimuth_
         float scale = (peak == 0.0f) ? 0.0f : (fabs(motor_power_[i]) / peak);
 
         //出力計算
-        if (/*???*/) {
-            if (motor_power_[i] > 0) motor_power[i] = (max_power * scale) + difix;
-            else if (motor_power_[i] < 0) motor_power[i] = (-max_power * scale) + difix;
-            else motor_power[i] = difix;
+        if (difix_MODE != 2 || ZONE || (/*ウルトラロング条件式*/)) {
+            if (motor_power_[i] > 0) motor_power[i] = (max_power * scale) + difix_power;
+            else if (motor_power_[i] < 0) motor_power[i] = (-max_power * scale) + difix_power;
+            else motor_power[i] = difix_power;
         } else {
             if (motor_power_[i] > 0) motor_power[i] = (max_power * scale);
             else if (motor_power_[i] < 0) motor_power[i] = (-max_power * scale);
@@ -89,15 +89,22 @@ int MyMOTOR::difix(int target_azimuth) {
         if (error > 180) error -= 360;
         else if (error < -180) error += 360;
         pwm = gkp * error;
-        if (abs(cam.get_ax(1)) > ZONE_border) ZONE = 0;
+        if (abs(cam.get_ax(1)) >= ZONE_border) ZONE = 0;
         else ZONE = 1;
 
     } else if (difix_MODE == 2 && cam.get_x(1) != 999) {
-        error = cam.get_x(1);
+        int normal = 5;
+
+        // error = cam.get_x(1);
+        // TODO　モードを一定時間保つ
+
+        //疑似敵除け
+        //全国前日の謎テンションで作り始めたやつが2回刺さった
+
         if (error > 180) error -= 360;
         else if (error < -180) error += 360;
         pwm = gkp * error;
-        if (abs(cam.get_x(1)) > ZONE_border) ZONE = 0;
+        if (abs(cam.get_x(1)) >= ZONE_border) ZONE = 0;
         else ZONE = 1;
 
     } else {
@@ -106,11 +113,6 @@ int MyMOTOR::difix(int target_azimuth) {
         else if (error < -180) error += 360;
         pwm = kp * error;
     }
-
-    //積分項
-    integral += error * dt;
-    integral = constrain(integral, -integral_LIMIT, integral_LIMIT);
-    pwm += ki * integral;
 
     //微分項
     int delta = gam.get_azimuth() - PREV_azimuth;

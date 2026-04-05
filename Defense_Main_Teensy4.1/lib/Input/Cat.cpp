@@ -8,7 +8,7 @@ void Cat::setup() {
 
 bool Cat::check_catch() {
     int value = analogRead(PIN);
-    if (30 > value || value > 350) {
+    if (20 > value || value > 500) {
         ocount = 0;
         icount += 1;
         if (icount >= 20) {
@@ -19,7 +19,8 @@ bool Cat::check_catch() {
         icount = 0;
         ocount += 1;
         if (ocount >= 80) {
-            if (millis() - start > 400) cat = 0;
+            // cat = 0;
+            if (millis() - start > 300) cat = 0;
         }
     }
 

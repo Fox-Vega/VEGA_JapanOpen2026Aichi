@@ -11,14 +11,14 @@ bool Cat::fetch() {
     if (cat_value < 250) {
         ocount = 0;
         icount += 1;
-        if (icount >= 20) {
+        if (icount >= 100) {
             cat = 1;
             LAST_cat = millis();
         }
     } else {
         icount = 0;
         ocount += 1;
-        if (ocount >= 100) {
+        if (ocount >= 200) {
             // cat = 0;
             st = millis() - LAST_cat;
             if (st >= 0) cat = 0;

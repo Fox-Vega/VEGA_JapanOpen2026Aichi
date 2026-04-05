@@ -4,10 +4,17 @@
 
 
 void Communicate::teensy_write(int ID) {
-    uint8_t message1_write[8]{};
     //start ID data data data data key end
+    //ID １＝座標データ
+
+    uint8_t message2_write[8]{};
+
+    message2_write[0] = 195;
+    message2_write[7] = 231;
 
     if (ID == 1) {
+        message2_write[1] = 1;
+
         int x = ball.get_x();
         int y = ball.get_y();
         x += 32768;
@@ -17,15 +24,13 @@ void Communicate::teensy_write(int ID) {
         if (y < 0) y = 0;
         else if (y > 65535) y = 65535;
 
-        message1_write[0] = 195;
-        message1_write[1] = 1;
-        message1_write[2] = (x >> 8) & 0xFF;
-        message1_write[3] = x & 0xFF;
-        message1_write[4] = (y >> 8) & 0xFF;
-        message1_write[5] = y & 0xFF;
-        message1_write[7] = 231;
+        message2_write[2] = (x >> 8) & 0xFF;
+        message2_write[3] = x & 0xFF;
+        message2_write[4] = (y >> 8) & 0xFF;
+        message2_write[5] = y & 0xFF;
+
     }
 
-    codec.encode(message1_write, 2, 5, 6);
-    Serial1.write(message1_write, 7);
+    codec.encode(message2_write, 2, 5, 6);
+    Serial2.write(message2_write, 8);
 }

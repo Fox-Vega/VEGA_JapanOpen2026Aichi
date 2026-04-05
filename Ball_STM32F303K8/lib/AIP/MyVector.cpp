@@ -43,7 +43,7 @@ float MyVECTOR::get_cordy(float azimuth, float magnitude) {
     return round(sin(theta * M_PI / 180.0) * magnitude);
 }
 
-void MyVECTOR::get_cord(float azimuth, float magnitude) {
+void MyVECTOR::cal_cord(float azimuth, float magnitude) {
     if (magnitude < 0) {
         azimuth += 180;
         if (azimuth >= 360) azimuth -= 360;
@@ -64,7 +64,7 @@ float MyVECTOR::get_y() {
     return y;
 }
 
-float MyVECTOR::get_vectordegree(float ax, float ay, float bx, float by) {
+float MyVECTOR::get_vdeg(float ax, float ay, float bx, float by) {
     float a_magnitude = sqrtf(ax * ax + ay * ay);
     float b_magnitude = sqrtf(bx * bx + by * by);
     if (a_magnitude == 0.0f || b_magnitude == 0.0f) return 0;

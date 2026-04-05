@@ -8,7 +8,6 @@ void Cam::get_message(byte* message, bool cam) {
 
     if (message[1] == 1) {
         x[0] = message[2] - 59;
-        if (cam == 0 && !istarset && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 0; istarset = 1;}
         if (cam == 0) {
             if (message[3] != 255) ax[0] = message[3] - 59;
             else ax[0] = 999;
@@ -20,7 +19,6 @@ void Cam::get_message(byte* message, bool cam) {
         }
     } else if (message[1] == 2) {
         x[1] = message[2] - 59;
-        if (cam == 0 && !istarset && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 1; istarset = 1;}
         if (cam == 0) {
             if (message[3] != 255) ax[1] = message[3] - 59;
             else ax[1] = 999;

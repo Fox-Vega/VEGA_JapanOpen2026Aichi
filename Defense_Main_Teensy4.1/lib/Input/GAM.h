@@ -20,6 +20,6 @@ class GAM { //Gyro,Accelero,Magnetoの略
     private:
         int azimuth{};
         int yawtweak{};
-        float n_x; //何かにつかってる
-        float n_y; //何かにつかってる
+        float n_x;
+        float n_y;
 };

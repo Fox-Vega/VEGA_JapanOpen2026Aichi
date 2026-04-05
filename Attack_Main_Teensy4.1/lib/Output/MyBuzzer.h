@@ -10,8 +10,8 @@ class MyBuzzer {
         void run(int note, int duration); //音程、持続時間を指定して音を鳴らす　持続時間を９９９にすると無制限
         void stop(); //停止
         void preset(int preset_NUM); //既定の音を鳴らす
+        bool USE_buzzer = 1;
 
     private:
-        const bool USE_buzzer = 1;
         const int buzzer_PIN = 36;
 };

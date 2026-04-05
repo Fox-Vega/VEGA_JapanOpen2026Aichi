@@ -2,10 +2,9 @@
 #include "Ball.h"
 #include "AIP.h"
 
-
 void BALL::get_message(byte* message) {
-    ball_x = ((message[1] << 8) | message[2]) - 32768;
-    ball_y = ((message[3] << 8) | message[4]) - 32768;
+    ball_x = ((message[2] << 8) | message[3]) - 32768;
+    ball_y = ((message[4] << 8) | message[5]) - 32768;
 
     if (ball_x == 0 && ball_y == 0) ball = 0;
     else ball = 1;

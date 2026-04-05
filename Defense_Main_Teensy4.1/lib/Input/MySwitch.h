@@ -14,6 +14,9 @@ class MySWITCH {
         byte pushed_tact;
         byte toggle_stat = 0;
 
-        const byte toggleswitchPIN = 31;
-        const byte tactswitchPIN[3] = {26, 27, 30};
+        // const byte toggleswitchPIN = 31;
+        const byte toggleswitchPIN = 33;
+        // const byte tactswitchPIN[3] = {26, 27, 30};
+        const byte tactswitchPIN[4] = {30, 31, 32, 27};
+
 };

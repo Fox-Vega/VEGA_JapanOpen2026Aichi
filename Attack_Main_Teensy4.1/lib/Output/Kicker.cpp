@@ -17,19 +17,19 @@ void Kicker::run(bool kick){
     }
 
     if (MODE == 1) {
-        if ((millis() - LAST_kick) < 50) { //0.1虚無
+        if ((millis() - LAST_kick) < 150) { //0.1虚無
             digitalWrite(charge_PIN, LOW);
             digitalWrite(discharge_PIN, LOW);
 
-        } else if((millis() - LAST_kick) < 300) { //リリース
+        } else if((millis() - LAST_kick) < 400) { //リリース
             digitalWrite(charge_PIN, LOW);
             digitalWrite(discharge_PIN, HIGH);
 
-        } else if((millis() - LAST_kick) < 400) { //0.1虚無
+        } else if((millis() - LAST_kick) < 500) { //0.1虚無
             digitalWrite(charge_PIN, LOW);
             digitalWrite(discharge_PIN ,LOW);
 
-        } else if((millis() - LAST_kick) < 2400) { //チャージ
+        } else if((millis() - LAST_kick) < 3000) { //チャージ
             digitalWrite(charge_PIN, HIGH);
             digitalWrite(discharge_PIN, LOW);
 

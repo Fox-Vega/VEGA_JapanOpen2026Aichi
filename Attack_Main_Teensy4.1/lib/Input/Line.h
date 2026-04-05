@@ -9,6 +9,8 @@ class LINE {
     public:
         void setup();
         void read_message(byte* message); //メッセージからデータを取得
+        void cal_C(); //今いる角を特定
+        void cal_CO(); //角を超えたかを判定
         int get_azimuth(); //方位角を取得
         int get_magnitude(); //距離を取得
         int get_eazimuth(); //逃げる方向を取得
@@ -37,6 +39,8 @@ class LINE {
         bool autosetborder{};
 
     private:
+        const int range = 15;
+
         int line_x{}; //座標（処理済み）
         int line_y{}; //座標（処理済み）
         int oldline_x{}; //前回の座標（処理済み）
@@ -45,6 +49,8 @@ class LINE {
         int escape_y{}; //逃げる座標（処理済み）
         float total_x{}; //X座標合計値
         float total_y{}; //Y座標合計値
+
+        int corner{};
 
         bool trip = false;
 
@@ -66,7 +72,7 @@ class LINE {
 
         const int main_r = 1200; //ラインセンサーの半径
         const int side_r = 2000;
-        const float over_border = 140.0f; //反転判定を行う変化量
+        const float over_border = /*???*/; //反転判定を行う変化量
 
         const int ledPIN = 37;
         const int side_degs[3] = {90, 180, 270};

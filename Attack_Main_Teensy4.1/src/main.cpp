@@ -5,7 +5,32 @@
 #include "Output.h"
 #include "Process.h"
 #include <EEPROM.h>
+#include <unordered_map>
 
+void PrintDebug();
+
+int Sendlate = 75;
+bool Running = false;
+bool eeprom_target = 0;
+std::unordered_map<int, std::array<bool, 4>> switch_states{
+    {0, {false, false, false, false}},
+    {1, {true, false, false, false}},
+    {6, {true, true, false, false}},
+    {10, {true, false, true, false}},
+    {15, {true, true, true, false}},
+    {5, {false, true, false, false}},
+    {9, {false, false, true, false}},
+    {100, {false, false, false, true}},
+    {101, {true, false, false, true}},
+    {106, {true, true, false, true}},
+    {110, {true, false, true, true}},
+    {115, {true, true, true, true}},
+    {105, {false, true, false, true}},
+    {109, {false, false, true, true}}
+};
+
+//変更する
+bool rainbow = false;
 
 void setup() {
     analogWriteResolution(8);
@@ -51,99 +76,180 @@ void setup() {
     digitalWrite(LED_BUILTIN, LOW);
     Serial.println("Mk.3 - VEGA2026");
 
-    mybuzzer.run(1750, 100);
-    mybuzzer.run(1800, 100);
-    mybuzzer.run(1850, 100);
+    mybuzzer.run(1760, 90);
+    mybuzzer.run(1800, 90);
+    mybuzzer.run(1860, 90);
     // mybuzzer.preset(0); //マツケン
 
-    mypixel.set_mode(1); //Neopixel ON/OFF
-    mypixel.set_brightness(30);
+    mypixel.set_mode(0);
+    if(myswitch.fetch_tact()!=0){
+        mypixel.set_mode(1);
+        mypixel.multi(9, 15, 7);
+        mypixel.show();
+        delay(200);
+        mypixel.multi(9, 15, 0);
+        mypixel.show();
+    }
+    mypixel.set_brightness(75);
     mypixel.multi(0, 23, 9);
+
+    line.side_border = 420;
+    communicate.line_write(2);
 
     byte ledpwm{};
     EEPROM.get(0, ledpwm);
     line.set_led(ledpwm);
     Serial.println("LED: " + String(ledpwm));
+
+    byte t;
+    EEPROM.get(1, t);
+    eeprom_target = (bool)t;
+    cam.set_goal(eeprom_target);
+}
+
+void WaitUntilTactReleased(){
+    int currentTact = myswitch.fetch_tact();
+    while((currentTact%100 )!=0){
+        yield();
+        currentTact = myswitch.fetch_tact();
+    }
+};
+
+static uint32_t lastKickerTime = 0;
+int tact = 0;
+Communicate::Mode UIstate{};
+
+void PostData(){
+        UIstate.cam = cam.target;
+        UIstate.gamreset = (tact == 5);
+        UIstate.rainbow = rainbow;
+        if (switch_states.count(tact)) {
+            UIstate.switch_ = switch_states.at(tact);
+        } else {
+            UIstate.switch_.fill(false);
+        }
+        UIstate.latency = Sendlate;
+        UIstate.LineBorder = tact == 101;
+        UIstate.Kicking = (millis() - lastKickerTime < 700)&&lastKickerTime!=0;
+        UIstate.LineLight = tact == 109;
+        communicate.setUI(UIstate);
+
+        //共通UI送信
+        communicate.ui_write(50);
+        //個別UI送信
+        communicate.ui_write(103);
+        //起動状態の送信
+        communicate.setParam(false);
+        communicate.ui_write(51);
 }
 
 void loop() {
-    mypixel.multi(0, 23, 9);
     cat.fetch();
     gam.read_azimuth();
+    mypixel.clear();
 
     if (myswitch.fetch_toggle() == 1) {
+        if(!Running){
+            communicate.setParam(true);
+            communicate.ui_write(51);
+            Running = true;
+            if (eeprom_target != cam.target) EEPROM.put(1, (byte)cam.target);
+        }
+
         line.set_led(999);
         mymotor.set_motor(1);
-        mymotor.set_difix(1);
         kicker.run(0);
 
         // kicker.run(1);
-        // mymotor.run(0, 180, 0);
+        // if (cam.get_x(0) != 999) mymotor.run(180-cam.get_x(0), 180, 0);
+        // else mymotor.run(0, 180, 0);
         attack.attack_();
-        //ここに　Defense
 
     } else {
+        if(Running){
+            communicate.setParam(false);
+            Serial8.flush();
+            delay(50);
+            communicate.ui_write(51);
+            Running = false;
+        }
+
         if (!line.autosetborder) line.set_led(0);
         mymotor.set_motor(0);
         mymotor.set_difix(0);
         kicker.run(0);
 
         mymotor.free();
+        attack.reset();
+
         // kicker.arm();
         // mypixel.set_mode(1);
-        //処理あればここに
-
-        // mypixel.rainbow();
-
-        if (myswitch.fetch_tact() == 1) {
-            if (cam.target == 0) {
-                cam.set_goal(1);
-                mybuzzer.run(1800, 60);
-                mypixel.multi(0, 23, 4);
-                mypixel.show();
-                delay(500);
-            } else {
-                cam.set_goal(0);
-                mybuzzer.run(1400, 60);
-                mypixel.multi(0, 23, 3);
-                mypixel.show();
-                delay(500);
-            }
-        } else if (myswitch.fetch_tact() == 5) {
-            gam.set_zero();
-            mybuzzer.run(1600, 60);
-            delay(100);
-
-        //開始位置設定ここに置こうかな
-
-        } else if (myswitch.fetch_tact() == 101) {
-            communicate.line_write(3);
-            line.autosetborder = true;
-            mybuzzer.run(800, 200);
-        } else if (myswitch.fetch_tact() == 105) {
-            kicker.run(1);
-            mybuzzer.run(1200, 100);
-        } else if (myswitch.fetch_tact() == 109) {
-            line.set_led(999);
+        if (rainbow) {
+            mypixel.rainbow();
+        } else {
+            mypixel.multi(0, 23, 0);
+            mypixel.show();
         }
 
-        //シリアルゾーン
-        Serial.print("Line: ");
-        for (int i = 0; i < 24; i++) Serial.print(line.get_main(i));
-        Serial.print("  Lazi: " + String(line.get_azimuth()));
-        Serial.print("  sideNUM: " + String(line.get_sideNUM()));
-        Serial.print("  Cat: " + String(cat.fetch()));
-        Serial.print("  Cam_x: " + String(cam.get_x(1)));
-        Serial.print("  Cam_ax: " + String(cam.get_ax(1)));
-        Serial.print("  Ball_azi: " + String(ball.get_azimuth()));
-        Serial.println("  Ball_int: " + String(ball.get_intensity()));
+        uint32_t startTime = millis();
+        tact = myswitch.fetch_tact();
+        PostData();
+        while ((int)(millis() - startTime) < Sendlate) {
+            PrintDebug();
+        }
 
-        // mypixel.multi(0, 23, 9);
-        // mypixel.closest(ball.get_azimuth(), 1, 1);
+        if (tact == 1) {
+            cam.target = !cam.target;
+            UIstate.cam = cam.target;
+            cam.set_goal(cam.target);
+            mybuzzer.run(cam.target==0 ? 1600 : 1800, 60);
+            mypixel.multi(0, 23, cam.target==0 ? 3 : 4);
+            mypixel.show();
+            PostData();
+            WaitUntilTactReleased();
+        } else if (tact == 5) {
+            gam.set_zero();
+            mybuzzer.run(1600, 60);
+            WaitUntilTactReleased();
+        } else if (tact==9){
+            rainbow = !rainbow;
+            PostData();
+            WaitUntilTactReleased();
+        } else if (tact == 101) {
+            communicate.line_write(3);
+            line.autosetborder = true;
+            PostData();
+            WaitUntilTactReleased();
+        } else if (tact == 105) {
+            kicker.run(1);
+            lastKickerTime = millis();
+            PostData();
+            WaitUntilTactReleased();
+        } else if (tact == 109) {
+            line.set_led(999);
+            PostData();
+            WaitUntilTactReleased();
+        }
     }
+
     mypixel.show();
 }
 
+void PrintDebug() {
+    Serial.print("Line: ");
+    for (int i = 0; i < 24; i++) Serial.print(line.get_main(i));
+    Serial.print(" ");
+    // for (int i = 0; i < 3; i++) Serial.print(line.get_side(i));
+    Serial.print("  Line_azi: " + String(line.get_azimuth()));
+    // Serial.print("  sideNUM: " + String(line.get_sideNUM()));
+    Serial.print("  Cat: " + String(cat.fetch()));
+    Serial.print("  Cam_x: " + String(cam.get_x(1)));
+    Serial.print("  Cam_ax: " + String(cam.get_ax(1)));
+    Serial.print("  Cam_height: " + String(cam.get_height(1)));
+    Serial.print("  BCam_x: " + String(cam.get_x(0)));
+    Serial.print("  Ball_azi: " + String(ball.get_azimuth()));
+    Serial.println("  Ball_int: " + String(ball.get_intensity()));
+}
 
 
 // ====================================== UART ======================================
@@ -188,11 +294,11 @@ void serialEvent2() { //Cam1
 
     // Serial.println(
     //     "Cam1( "
-    //     + String(message6_read[1]) + ","
-    //     + String(message6_read[2]) + ","
-    //     + String(message6_read[3]) + ","
-    //     + String(message6_read[4]) + ","
-    //     + String(message6_read[5]) + " )"
+    //     + String(message2_read[1]) + ","
+    //     + String(message2_read[2]) + ","
+    //     + String(message2_read[3]) + ","
+    //     + String(message2_read[4]) + ","
+    //     + String(message2_read[5]) + " )"
     // );
 
     if (message2_read[(size - 1)] == 231) cam.read_message(message2_read, 0);
@@ -217,10 +323,10 @@ void serialEvent6() { //Cam2
 
     // Serial.println(
     //     "Cam2( "
-    //     + String(message2_read[1]) + ","
-    //     + String(message2_read[2]) + ","
-    //     + String(message2_read[3]) + ","
-    //     + String(message2_read[4]) + " )"
+    //     + String(message6_read[1]) + ","
+    //     + String(message6_read[2]) + ","
+    //     + String(message6_read[3]) + ","
+    //     + String(message6_read[4]) + " )"
     // );
 
     if (message6_read[(size - 1)] == 231) cam.read_message(message6_read, 1);
@@ -248,6 +354,32 @@ void serialEvent3() { //Line
 
     if (message3_read[(size - 1)] == 231) communicate.line_read(message3_read);
     // if (message3_read[(size - 1)] == 231) line.read_message(message3_read);
+    else return;
+}
+
+void serialEvent8(){
+    int size = 7;
+    uint8_t message8_read[size]{};
+
+    while(1) {
+        if (Serial8.available() >= size) {
+            message8_read[0] = Serial8.read();
+            if (message8_read[0] == 195) break;
+        } else {
+            return;
+        }
+    }
+
+    for (int i = 1; i < size; i++) message8_read[i] = Serial8.read();
+
+    if(codec.decode(message8_read, 1, 4, 5) != 0) return;
+
+    if (message8_read[(size - 1)] == 231) {
+        int ID = message8_read[1];
+        if (ID==120) Sendlate += 20;
+        else if (ID==121)Sendlate -= 5;
+        Sendlate = constrain(Sendlate, 10, 200);
+    }
     else return;
 }
 

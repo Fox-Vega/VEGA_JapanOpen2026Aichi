@@ -2,13 +2,14 @@
 #include "Cam.h"
 #include "AIP.h"
 #include "Input.h"
+#include "Output.h"
 
 void Cam::read_message(byte* message, bool cam) {
     // start ID datax tarx width height end
 
     if (message[1] == 1) {
         x[0] = message[2] - 59;
-        if (cam == 0 && !target_set && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 0; target_set = 1;}
+        // if (cam == 0 && !target_set && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 0; target_set = 1;}
         if (cam == 0) {
             if (message[3] != 255) ax[0] = message[3] - 59;
             else ax[0] = 999;
@@ -20,7 +21,7 @@ void Cam::read_message(byte* message, bool cam) {
         }
     } else if (message[1] == 2) {
         x[1] = message[2] - 59;
-        if (cam == 0 && !target_set && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 1; target_set = 1;}
+        // if (cam == 0 && !target_set && 0 < myvector.get_cordy(gam.get_azimuth(),10) ) {target = 1; target_set = 1;}
         if (cam == 0) {
             if (message[3] != 255) ax[1] = message[3] - 59;
             else ax[1] = 999;

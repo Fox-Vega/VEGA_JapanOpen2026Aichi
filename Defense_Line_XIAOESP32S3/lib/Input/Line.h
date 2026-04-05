@@ -16,7 +16,7 @@ class LINE {
         bool line_stat[24]{}; //最終ステータス
 
     private:
-        int detection_border = 0;
+        int detection_border = 1000;
 
         int line_stat_[24]{}; //仮ステータス
         int line_values[24]{}; //センサー値

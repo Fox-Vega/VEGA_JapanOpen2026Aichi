@@ -7,12 +7,12 @@
 class Cat {
     public:
         void setup(); //初期設定
-        bool check_catch(); //検知ステータス取得
+        bool check_catch();
 
     private:
-        bool cat = false; //stat
-        int ocount = 0; //offcount
-        int icount = 0; //oncount
-        const int PIN = 41;
+        bool cat = false; //検出ステータス
+        int ocount = 0;
+        int icount = 0;
+        const int PIN = 38;
         unsigned long start;
 };

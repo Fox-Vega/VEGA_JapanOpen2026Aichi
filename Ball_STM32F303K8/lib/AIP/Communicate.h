@@ -3,8 +3,8 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 
-#define RXD1 D7
-#define TXD1 D6
+#define RXD2 PA3
+#define TXD2 PA2
 
 
 class Communicate {

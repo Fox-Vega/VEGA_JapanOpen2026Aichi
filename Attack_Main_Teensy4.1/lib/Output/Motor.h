@@ -16,21 +16,19 @@ class MyMOTOR {
         void set_difix(int mode); //姿勢制御のモード　０＝無　１＝有　２＝敵
 
         bool ZONE{};
+        int difix_power{};
 
     private:
         //調整
-        const float kp = 3.5; //通常の比例
+        const float kp = 2.5; //通常の比例
         const float gkp = 2.5;
-        const float ki = 0.1;
-        const float kd = 0.15; //微分　速度を抑える
-        float integral = 0.0f;
-        const float integral_LIMIT = 200.0f;   // 好きな値に調整可能
+        const float kd = 0.06 ; //微分　速度を抑える
 
-        int ZONE_border = 3;
-        const int movement_LIMIT = 230; //移動の出力限界
+        int ZONE_border = 0;
+        const int movement_LIMIT = 240; //移動の出力限界
         const int difix_LIMIT = 0; //姿勢制御の単体出力限界
-        const int share_LIMIT = 180; //姿勢制御の単体出力限界を超えた時に移動出力を削れる量
-        const int pwm_LIMIT = 230; //モーターの出力限界　保護用
+        const int share_LIMIT = 160; //姿勢制御の単体出力限界を超えた時に移動出力を削れる量
+        const int pwm_LIMIT = 240; //モーターの出力限界　保護用
 
         int pwm{};
 

@@ -65,8 +65,8 @@ float MyVECTOR::get_y() {
 }
 
 float MyVECTOR::get_vectordegree(float ax, float ay, float bx, float by) {
-    float a_magnitude = sqrtf(ax * ax + ay * ay);
-    float b_magnitude = sqrtf(bx * bx + by * by);
+    float a_magnitude = myvector.get_magnitude(ax, ay);
+    float b_magnitude = myvector.get_magnitude(bx, by);
     if (a_magnitude == 0.0f || b_magnitude == 0.0f) return 0;
     double cos_theta = (ax * bx + ay * by) / (a_magnitude * b_magnitude);
     if (cos_theta > 1.0f) cos_theta = 1.0f;

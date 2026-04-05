@@ -1,5 +1,6 @@
 //変更禁止
 #include "MySwitch.h"
+#include "Output.h"
 
 
 void MySWITCH::setup() {
@@ -30,5 +31,6 @@ int MySWITCH::check_tact() {
             }
         }
     }
+    if(digitalRead(tactswitchPIN[3])==LOW){pushed_tact+=100;}
     return pushed_tact;
 }
